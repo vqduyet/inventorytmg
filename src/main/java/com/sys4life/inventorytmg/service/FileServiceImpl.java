@@ -13,13 +13,9 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -134,11 +130,11 @@ public class FileServiceImpl implements FileService {
         for (Map.Entry<String, StorageStructure> entry : storageStructureByProductMap.entrySet()) {
             log.info("productCode {}", entry.getKey());
             StorageStructure structure = entry.getValue();
-            // todo: check if restrictives are negative
+            // check if restrictives are negative
             if (structure.getRestrictives().stream().filter(x -> x.getQuantity() < 0).count() > 0) {
                 Issue issue = new Issue(entry.getKey(), "KHO MAU DO AM");
                 issues.add(issue);
-                break;
+                continue;
             }
             // else: processing
             log.info("productCode {} - negatives cnt {}", entry.getKey(), structure.getNegatives().size());
@@ -148,7 +144,7 @@ public class FileServiceImpl implements FileService {
             allPositives.addAll(structure.getPositiveLimitTwo());
             allPositives.addAll(structure.getPositiveLimitThree());
 
-            // todo: check if negatives > sum of positives
+            // check if negatives > sum of positives
             int totalNegativeQuantity = structure.getNegatives().stream()
                     .map(x -> x.getQuantity())
                     .reduce(0, (a, b) -> a + b);
@@ -158,7 +154,7 @@ public class FileServiceImpl implements FileService {
             if ((totalPositiveQuantity + totalNegativeQuantity) < 0) {
                 Issue issue = new Issue(entry.getKey(), "TONG DUONG NHO HON TONG AM");
                 issues.add(issue);
-                break;
+                continue;
             }
 
             // process the transfer list
@@ -191,7 +187,7 @@ public class FileServiceImpl implements FileService {
                                 .build();
                         transfers.add(transfer);
                         positive.setQuantity(0);
-                        negativeQuantityToTransfer = negativeQuantityToTransfer - quantityToTransfer;
+                        negativeQuantityToTransfer = negativeQuantityToTransfer + quantityToTransfer;
                     }
                 }
             }
