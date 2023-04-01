@@ -34,7 +34,7 @@ public class FileController {
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
         String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=users_" + currentDateTime + ".xlsx";
+        String headerValue = "attachment; filename=outputInventory_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
         fileService.processFile(file.getInputStream(), response);
         return "index";
